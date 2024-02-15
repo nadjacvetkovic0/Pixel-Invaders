@@ -1,0 +1,609 @@
+
+GREEN       EQU     %00100000 
+BLACK       EQU     %00000000 
+SPEED       EQU     9 
+
+            .ORG    32768 
+
+; JP      main
+
+MAIN:                
+; CALL    van1 ;
+            CALL    ekran ; 
+            CALL    van ; 
+            CALL    igrac ; 
+            RET      
+
+;----------------------------------------------------------------------
+EKRAN:               
+; Farbanje celog ekrana
+
+            LD      HL,22528 ; Adresa prvog atributa.
+            LD      A,%00000000 ; Vrednost koja ce se upisati u atribut.
+            LD      C,3 ; Brojac ponavljanja blokova po 256 atributa.
+
+SLBLOK:              
+            LD      B,0 ; Brojac ponavljanja upisa atributa.
+
+BOJI:                
+            LD      (HL),A ; Smeötanje registra A na adresu (HL).
+            INC     HL ; Prelazak na sledeci atribut.
+            DEC     B ; Smanjenje brojaca atributa.
+            JP      NZ,boji ; Skok na pocetak petlje ako rezultat
+; poslednje operacije (DEC B) nije nula.
+; 
+            DEC     C 
+            JP      NZ,slBlok 
+
+            RET      ; Povratak u BASIC.
+;----------------------------------------------------------------------
+
+IGRAC:               
+;igrac1 - sta se mrda na ekranu
+;tabla - background
+;glavnaIgrac - main petlja za pokretanje samog igraca
+; 
+; 
+IGRAC1      EQU     %11111111 ; Definicija asemblerske konstante za igraca.
+TABLA       EQU     %00000000 ; Definicija asemblerske konstante za tablu.
+
+; 
+;.ORG    32768 - ne treba vise
+; 
+            CALL    inicijalizuj 
+            ;RET
+GLAVNAIGRAC:         
+
+            CALL    pauziraj ; USPORAVA
+            CALL    neprijateljdesno ;IDU DESNO VANZZZZZZ
+            CALL    pomeri_igraca ;KRECE SE IGRAC
+            CALL    pomeri_metak ;METAK IDE GORE
+
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            
+            CALL    pauziraj ; USPORAVA
+            CALL    neprijateljdesno ;IDU DESNO VANZZZZZZ
+            CALL    pomeri_igraca ;KRECE SE IGRAC
+            CALL    pomeri_metak ;METAK IDE GORE
+
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            
+            CALL    pauziraj ; USPORAVA
+            CALL    neprijateljdesno ;IDU DESNO VANZZZZZZ
+            CALL    pomeri_igraca ;KRECE SE IGRAC
+            CALL    pomeri_metak ;METAK IDE GORE
+
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            
+            
+            
+            
+            
+            
+
+
+            CALL    pauziraj 
+            CALL    neprijateljdole 
+            CALL    crko ;PROVERAVA DA LI SU VANZ NA 22. LINIJI AKO DA CRK
+            CP      %00100000 
+            RET     z 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+
+
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+
+            CALL    pauziraj 
+            CALL    neprijateljlevo 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak
+            
+            
+            
+            CALL    pauziraj 
+            CALL    neprijateljlevo 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            
+            CALL    pauziraj 
+            CALL    neprijateljlevo 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak
+            
+            
+            
+            
+            
+            
+            
+
+            CALL    pauziraj 
+            CALL    neprijateljdole 
+            CALL    crko 
+            CP      %00100000 
+            RET     Z 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pauziraj 
+            CALL    pomeri_igraca 
+            CALL    pomeri_metak 
+            CALL    pomeri_metak 
+
+
+            JP      glavnaigrac 
+
+
+
+
+POMERI_IGRACA:       
+
+            PUSH    BC 
+; Sacekaj interapt (1/50s).
+            CALL    citaj 
+
+            BIT     0,A ; Test
+            CALL    Z,levo ; A
+            BIT     2,A ; Test stanja bita
+            CALL    Z,desno ; D
+            BIT     1,D ; Test
+            CALL    Z,pucanje ;  W
+            BIT     4,A ; 
+            POP     BC 
+            RET     Z ; Povratak u BASIC
+            RET      
+; 
+INICIJALIZUJ:        
+; 
+            LD      HL,23216 ; Adresa atributa na kraju ekrana - dole.
+;   LD      BC,$FDFE ; Adresa porta na kome se nalaze GFDSA.
+            LD      (HL),igrac1 ; Upiöi atribut na pocetnu poziciju.
+
+            RET      
+; 
+; Pomeranje igraca u levo, ali samo ako vec nije skroz levo. Ako jeste
+; onda su najniuih pet bitova u registarskom paru HL nule. Ovo se svodi
+; na test samo registra L da li je xxx00000.
+
+CITAJ:               
+
+            LD      BC,$FDFE ; Adresa porta na kome se nalaze ASD>.
+            IN      A,(C) ; Procitaj tr
+            LD      BC,$FBFE ; Adresa porta na kome se nalaze W.
+            IN      D,(C) ; Pro
+;BIT     1,D ; Proveri da li je pritisnut tasterda bude 0).
+;RET     NZ ; Ako nije pritisnut registar A vec sadrui öta treba, kraj rutine.
+;RES     0,A ; Ako jeste resetuj bit 0 u registru A.
+            RET      
+
+; 
+LEVO:                
+; 
+            PUSH    AF ; Stavi AF na stek da se sacuva procitano stanje tastera.
+            LD      hl,(igraclok) 
+; Provera da li smo vec na levoj ivici:
+; 
+            LD      A,L ; Prebaci registar L u registar A.
+            AND     %00011111 ; Maskiraj tako da se izdvoji donjih pet bitova.
+            JP      Z,levoNE ; Ako je rezultat nula to je leva ivica pa preskoci pomeranje.
+; 
+; Ako nije leva ivica pomeri igraca u levo:
+; 
+            LD      (HL),tabla ; Obriöi atribut (postavi boju pozadine).
+            DEC     HL ; Predi na prethodnu adresu.
+            LD      (HL),igrac1 ; Postavi boju igraca na novu adresu.
+            LD      (igracLOK),hl ;ubacujem novu lokaciju
+; 
+; Izlaz:
+LEVONE:              
+            POP     AF ; Vrati AF sa steka da se osveui procitano stanje tastera.
+            RET      
+; 
+; Pomeranje igraca u desno, ali samo ako vec nije skroz desno. Ako jeste
+; onda su najniuih pet bitova u registarskom paru HL jedinice.Ovo se svodi
+; na test samo registra L da li je xxx11111.
+
+; 
+DESNO:               
+; 
+            PUSH    AF ; Stavi AF na stek da se sacuva procitano stanje tastera.
+            LD      hl,(igraclok) 
+; Provera da li smo vec na desnoj ivici:
+; 
+            LD      A,L ; Prebaci registar L u registar A.
+            AND     %00011111 ; Maskiraj tako da se izdvoji donjih pet bitova.
+            CP      %00011111 ; Uporedi A sa 00011111, Z flag se setuje ako je jednakost.
+            JP      Z,desnoNE ; Ako je Z flag setovan to je desna ivica pa preskoci pomeranje.
+; 
+; Ako nije desna ivica pomeri igraca u desno:
+; 
+            LD      (HL),tabla ; Obriöi atribut (postavi boju pozadine).
+            INC     HL ; Predi na prethodnu adresu.
+            LD      (HL),igrac1 ; Postavi boju igraca na novu adresu.
+            LD      (igracLOK),hl ;ubacujem novu lokaciju
+; 
+; Izlaz:
+DESNONE:             
+            POP     AF ; Vrati AF sa steka da se osveui procitano stanje tastera.
+            RET      
+
+;----------------------------------------------------------------------
+VAN:                 
+            CALL    van1 
+
+            CALL    van2 
+
+            RET      
+
+VAN1:                
+
+            LD      HL,22602 ; Adresa atributa na pocetku.22561
+            LD      A,%00100000 ; zelena boja vanzemaljca
+            LD      (HL),A ; Smeötanje registra A na adresu (HL).
+
+            LD      C,3 
+PRVIREDVAN:          
+            INC     HL 
+            INC     HL 
+            INC     HL 
+            INC     HL 
+            LD      (HL),A 
+            DEC     C 
+
+            JP      nz,prviredvan 
+            RET      
+;----------------------------------------------------------------------
+
+VAN2:                
+
+            LD      HL,22665 ; 
+            LD      A,%00100000 ; Vrednost koja ce se upisati u atribut.
+            LD      (HL),A ; Smeötanje registra A na adresu (HL).
+
+            LD      c,2 
+DRUGIREDVAN:         
+            INC     HL 
+            INC     HL 
+            INC     HL 
+            INC     HL 
+            LD      (HL),A 
+            DEC     c 
+            JR      nz,drugiredvan 
+            RET      
+
+
+;----------------------------------------------------------------------
+;KRETANJE NEPRIJATELJA DOLE-DESNO-DOLE-LEVO patern
+;----------------------------------------------------------------------
+
+
+
+;----------------------------------------------------------------------
+;KRETANJE DOLE
+;----------------------------------------------------------------------
+NEPRIJATELJDOLE:     
+            PUSH    BC 
+            PUSH    DE 
+            PUSH    HL 
+; 
+            LD      DE,23231 
+            LD      HL,23199 
+            LD      B,32 
+            LD      C,20 
+IDEDOLE:             
+            LD      A,(HL) 
+            CP      GREEN 
+            CALL    Z,ZAMENACRNA 
+            LD      A,(HL) 
+;jp	z,proveraposlednje
+NASTAVLJADOLE:       
+            DEC     DE 
+            DEC     HL 
+            DEC     B 
+            JP      NZ,IDEdole 
+            LD      B,32 
+            DEC     C 
+            JP      NZ,IDEdole 
+            POP     HL 
+            POP     DE 
+            POP     BC 
+            RET      
+
+;-----------------------------------------------------------------------
+;PROVERAVA DA LI SU VANZEMALJCI DODIRNULI 3. POSLEDNJU LINIJU
+;-----------------------------------------------------------------------
+PROVERAPOSLEDNJE:    
+            PUSH    AF 
+            PUSH    HL 
+            PUSH    BC 
+            LD      A,H ; Prebaci gornji deo adrese u A.
+            AND     %00000011 ; Maskiraj najniža dva bita.
+            LD      B,A ; Privremeno skloni A u B.
+            LD      A,L ; Prebaci donji deo adrese u A.
+            AND     %11100000 ; Maskiraj najviša dva bita.
+            OR      B ; Kombinuj oba dela maskiranih bitova.
+            CP      %10000010 
+            JP      nz,nastavljadole 
+            POP     BC 
+            POP     HL 
+            POP     AF 
+            RET      
+
+;----------------------------------------------------------------------
+;KRETANJE DESNO
+;----------------------------------------------------------------------
+
+
+NEPRIJATELJDESNO:    
+            PUSH    BC 
+            PUSH    DE 
+            PUSH    HL 
+            LD      DE,23231 
+            LD      HL,23230 
+            LD      B,32 
+            LD      C,19 
+IDEDESNO:            
+            LD      A,(HL) 
+            CP      GREEN 
+            CALL    Z,ZAMENACRNA 
+; 
+            DEC     DE 
+            DEC     HL 
+            DEC     B 
+            JP      NZ,IDEdesno 
+            LD      B,32 
+            DEC     C 
+            JP      NZ,IDEdesno 
+            POP     HL 
+            POP     DE 
+            POP     BC 
+; 
+            RET      
+
+
+
+;----------------------------------------------------------------------
+;KRETANJE LEVO
+;----------------------------------------------------------------------
+NEPRIJATELJLEVO:     
+; 
+            PUSH    BC 
+            PUSH    DE 
+            PUSH    HL 
+            LD      DE,22528 
+            LD      HL,22529 
+            LD      B,32 
+            LD      C,21 
+
+IDELEVO:             
+            LD      A,(HL) 
+            CP      GREEN 
+            CALL    Z,ZAMENACRNA 
+; 
+            INC     DE 
+            INC     HL 
+            DEC     B 
+            JP      NZ,idelevo 
+            LD      B,32 
+            DEC     C 
+            JP      NZ,IDElevo 
+            POP     HL 
+            POP     DE 
+            POP     BC 
+            RET      
+;----------------------------------------------------------------------
+;MENJA VREDNOSTI HL I DE ODNOSNO BOJE
+;----------------------------------------------------------------------
+ZAMENACRNA:          
+            LD      (HL),BLACK 
+            LD      A,GREEN 
+            LD      (DE),A 
+            RET      
+; 
+; 
+; 
+
+
+
+;----------------------------------------------------------------------
+;USPORAVANJE IGRE KORISTECI HALTOVE
+;----------------------------------------------------------------------
+PAUZIRAJ:            
+            PUSH    BC 
+            LD      C,SPEED 
+PAUZA_PETLJA:        
+            HALT     
+            DEC     C 
+            JP      NZ,pauza_petlja 
+            POP     BC 
+            RET      
+
+
+;----------------------------------------------------------------------
+
+PUCANJE:             
+
+            PUSH    AF ; 
+            PUSH    BC ; 
+            PUSH    DE 
+            PUSH    HL ; 
+
+
+            LD      a,(POZ_MET) 
+            CP      0 
+            JP      nz,pucanjekraj 
+
+; 
+
+; 
+; 
+            LD      HL,(IGRACLOK) 
+            LD      DE,-32 
+            ADD     HL,DE 
+            LD      (HL),%00001000 
+            LD      (poz_met),HL 
+
+PUCANJEKRAJ:         
+            POP     HL 
+            POP     DE 
+            POP     BC 
+            POP     AF 
+            RET      
+
+
+
+            LD      A,20 
+            LD      HL,(IGRACLOK) 
+            LD      DE,32 
+            LD      BC,-32 
+            ADD     hl,bc 
+;PUSH    DE
+PETLJA1:             
+;PUSH    DE
+
+            ADD     HL,BC 
+            LD      (HL),%00010000 
+            ADD     HL,DE 
+            LD      (HL),%00000000 
+            ADD     HL,BC 
+
+
+
+            DEC     A 
+            JP      NZ,PETLJA1 
+            LD      HL,(IGRACLOK) 
+            LD      (HL),%00001000 
+; CP
+POMERI_METAK:        
+            PUSH    AF 
+            PUSH    BC 
+            PUSH    DE 
+; 
+;,FADSIUTASFIULZQEIĆOFUQEWĆPOGZEWOHLHALT
+            LD      HL,(POZ_MET) 
+; 
+
+            LD      de,-32 
+            LD      a,%00000000 
+            LD      (hl),a 
+            ADD     hl,de 
+            LD      (poz_met),hl 
+            
+            
+            
+            
+            
+            
+            LD      a,%00010000 
+            LD      (hl),a 
+
+            LD      A,H ; Prebaci gornji deo adrese u A.
+            AND     %00000011 ; Maskiraj najniža dva bita.
+            LD      B,A ; Privremeno skloni A u B.
+            LD      A,L ; Prebaci donji deo adrese u A.
+            AND     %11100000 ; Maskiraj najviša dva bita.
+            OR      B ; Kombinuj oba dela maskiranih bitova.
+            CP      %00000000 ; Uporedi sa nulom
+            CALL    z,promena_metka 
+; 
+
+            POP     DE 
+            POP     BC 
+            POP     AF 
+            RET      
+; 
+; 
+;----------------------------------------------------------------------
+
+
+PROMENA_METKA:       
+            PUSH    af 
+            LD      A,0 
+            LD      (hl),%00000000 ;PROMENA METAK
+            LD      (poz_met),A 
+            POP     AF 
+            RET      
+
+PETLJA1ONE:          
+            POP     HL 
+            POP     DE 
+            POP     BC 
+            POP     AF 
+            RET      
+
+;----------------------------------------------------------------------
+;provera jel crko
+CRKO:                
+;PUSH AF
+            PUSH    HL 
+            PUSH    BC 
+            LD      HL,23168 
+            LD      B,31 
+
+PETLJAAAA:           
+
+
+            LD      A,(HL) 
+            CP      %00100000 ; DA li je zeleno
+            JP      Z,CRKOIZLAZ 
+            INC     HL 
+
+
+            DEC     B 
+            JP      NZ,PETLJAAAA 
+
+CRKOIZLAZ:           
+            POP     BC 
+            POP     HL 
+;POP AF
+            RET      
+
+IGRACLOK:   DW      23216 ; POCETNA LOKACIJA IGRACA
+
+POZ_MET:    DW      0 
+BROJACUB:   DB      9
+
